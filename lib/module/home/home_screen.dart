@@ -257,6 +257,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
               style: regular22(color: primaryWhite)
           )
       ),
+      backgroundColor: bgPrimaryColor,
       body: CustomBaseBodyWidget(
         child: RefreshIndicator(
             onRefresh: _refreshData,

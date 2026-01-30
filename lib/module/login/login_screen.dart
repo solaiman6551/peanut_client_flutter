@@ -45,13 +45,13 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
           EasyLoading.show();
         } else if (currentState.hasError) {
           EasyLoading.dismiss();
-          Toasts.showErrorToast("${currentState.error}");
+          Toasts.showErrorToast('');
         } else {
           EasyLoading.dismiss();
           final response = currentState.value!;
           if (response.result == true && response.token != "") {
             ref.read(localPrefProvider).setBool(PrefKeys.isLoggedInKey, true);
-            ref.read(localPrefProvider).setString(PrefKeys.sessionTokenKey, response.token ?? '');
+            ref.read(localPrefProvider).setString(PrefKeys.sessionTokenKey, response.token ?? "");
             Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => const DashboardScreen()),
             );
@@ -78,11 +78,11 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
           border: const OutlineInputBorder(
             borderRadius: AppDimen.commonCircularBorderRadius,
           ),
-          labelText: 'Login ID',
+          labelText: "Login ID",
           labelStyle: regular18(color: primaryTextLightColor),
-          hintText: 'Enter your login ID',
+          hintText: "",
           hintStyle: regular14(color: primaryTextLightColor),
-          counterText: ''
+          counterText: ""
       ),
       style: regular16(color: primaryTextColor),
     );
@@ -103,80 +103,88 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
           border: const OutlineInputBorder(
             borderRadius: AppDimen.commonCircularBorderRadius,
           ),
-          labelText: 'Password',
+          labelText: "Password",
           labelStyle: regular18(color: primaryTextLightColor),
-          hintText: 'Enter your password',
+          hintText: "Enter your password",
           hintStyle: regular14(color: primaryTextLightColor),
-          counterText: ''
+          counterText: ""
       ),
       style: regular16(color: primaryTextColor),
     );
 
-    return Scaffold(
-      backgroundColor: primaryWhite,
-      body: CustomBaseBodyWidget(
-        child: Container(
-          color: primaryWhite,
-          child: Stack(
-            children: [
-              Row(
-
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Center(
-                    // alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: DimenSizes.dimen_40),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(DimenSizes.dimen_0),
-                          child: CommonTextWidget(
-                            text:  "Login",
-                            style: bold24(),
-                          ),
-                        ),
-                        const SizedBox(height: DimenSizes.dimen_40),
-                        Gap.h40,
-                        loginId,
-                        Gap.h20,
-                        password,
-                        Gap.h30,
-                      ],
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-      bottomSheet: Padding(
-        padding: AppDimen.commonAllSidePadding20,
-        child: ListenableBuilder(
-          listenable: Listenable.merge([loginIdTextController, passwordTextController]),
-          builder: (context, _) {
-            final bool isInputValid =
-                loginIdTextController.text.isNotEmpty &&
-                    passwordTextController.text.isNotEmpty;
-            final bool isLoading = ref.watch(loginControllerProvider).isLoading;
-            return CommonButtonWidget(
-              text: 'Submit',
-              onPressedFunction: (isInputValid && !isLoading) ? () {
+    final loginButton = Padding(
+      padding: AppDimen.commonAllSidePadding0,
+      child: ListenableBuilder(
+        listenable: Listenable.merge([loginIdTextController, passwordTextController]),
+        builder: (context, _) {
+          final bool isInputValid = loginIdTextController.text.isNotEmpty &&
+              passwordTextController.text.isNotEmpty;
+          final bool isLoading = ref.watch(loginControllerProvider).isLoading;
+          final bool canSubmit = isInputValid && !isLoading;
+          return Opacity(
+            opacity: canSubmit ? 1.0 : 0.2,
+            child: CommonButtonWidget(
+              text: "Submit",
+              onPressedFunction: canSubmit ? () {
                 AppUtils.hideKeyboard();
                 LoginRequest loginRequest = LoginRequest(
                     loginId: loginIdTextController.text,
                     password: passwordTextController.text);
                 ref.read(localPrefProvider).setString(PrefKeys.loginId, loginIdTextController.text);
                 ref.read(loginControllerProvider.notifier).login(loginRequest);
-              } : null,
-            );
-          },
+              } : () {
+                Toasts.showErrorToast("Please enter your credentials");
+              },
+            ),
+          );
+        },
+      ),
+    );
+
+    return Scaffold(
+      backgroundColor: bgPrimaryColor,
+      body: CustomBaseBodyWidget(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CommonTextWidget(
+                text: "Welcome",
+                style: bold26(),
+              ),
+              Gap.h5,
+              CommonTextWidget(
+                text: "Sign In to continue",
+                style: regular18(),
+              ),
+              Gap.h25,
+              loginId,
+              Gap.h15,
+              password,
+              Gap.h25,
+              loginButton,
+              Gap.h25,
+              Center(
+                child: CommonTextWidget(
+                  text: "Forgot Password?",
+                  style: regular14(color: lightGreyColor),
+                ),
+              ),
+              Gap.h10,
+              Center(
+                child: CommonTextWidget(
+                  text: "Don't have an account? Sign Up",
+                  style: regular14(color: lightGreyColor),
+                ),
+              ),
+            ],
+          ),
         ),
       )
     );
+
+
   }
 
   @override
