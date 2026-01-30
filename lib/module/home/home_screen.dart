@@ -195,9 +195,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
               "${accountInfoState.value?.equity}",
               "${accountInfoState.value?.freeMargin}",
             ),
-
             const SizedBox(height: 20),
-
             buildRow("TOTAL TRADES COUNT", "TOTAL TRADES VOLUME"),
             buildValueRow(
               "${accountInfoState.value?.totalTradesCount}",
