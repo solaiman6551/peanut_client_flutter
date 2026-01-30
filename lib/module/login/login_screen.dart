@@ -62,7 +62,6 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
       },
     );
 
-
     final loginId = CommonTextFieldWidget(
       controller: loginIdTextController,
       scrollPadding: const EdgeInsets.all(DimenSizes.dimen_0),
@@ -80,7 +79,7 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
             borderRadius: AppDimen.commonCircularBorderRadius,
           ),
           labelText: 'Login ID',
-          labelStyle: regular14(color: primaryTextLightColor),
+          labelStyle: regular18(color: primaryTextLightColor),
           hintText: 'Enter your login ID',
           hintStyle: regular14(color: primaryTextLightColor),
           counterText: ''
@@ -105,7 +104,7 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
             borderRadius: AppDimen.commonCircularBorderRadius,
           ),
           labelText: 'Password',
-          labelStyle: regular14(color: primaryTextLightColor),
+          labelStyle: regular18(color: primaryTextLightColor),
           hintText: 'Enter your password',
           hintStyle: regular14(color: primaryTextLightColor),
           counterText: ''
@@ -114,76 +113,77 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
     );
 
     return Scaffold(
-      backgroundColor: bgPrimaryColor,
+      backgroundColor: primaryWhite,
       body: CustomBaseBodyWidget(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            IntrinsicHeight(
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        padding: AppDimen.commonAllSidePadding30,
-                        margin: const EdgeInsets.only(top: DimenSizes.dimen_50),
-                        decoration: BoxDecoration(
-                          color: primaryWhite,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(DimenSizes.dimen_25),
-                              topRight: Radius.circular(DimenSizes.dimen_25)
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: lightGreyColor,
-                              spreadRadius: 2,
-                              blurRadius: 4,
-                              offset: const Offset(0, -2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Gap.h20,
-                            CommonTextWidget(
-                                text: 'Login',
-                                style: regular28(color: primaryTextColor),
-                                shouldShowMultipleLine: true
-                            ),
-                            Gap.h40,
-                            loginId,
-                            Gap.h20,
-                            password,
-                            Gap.h30,
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: CommonButtonWidget(
-                                  text: 'Submit',
-                                  onPressedFunction: () {
-                                    AppUtils.hideKeyboard();
-                                    LoginRequest loginRequest = LoginRequest(
-                                        loginId: loginIdTextController.text,
-                                        password: passwordTextController.text
-                                    );
-                                    ref.read(localPrefProvider).setString(PrefKeys.loginId, loginIdTextController.text);
-                                    ref.read(loginControllerProvider.notifier).login(loginRequest);
-                                  }
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                ],
+        child: Container(
+          color: primaryWhite,
+          child: Stack(
+            children: [
+              Row(
+
               ),
-            )
-          ],
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    // alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: DimenSizes.dimen_40),
+                        Container(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.all(DimenSizes.dimen_0),
+                          child: CommonTextWidget(
+                            text:  "Login",
+                            style: bold24(),
+                          ),
+                        ),
+                        const SizedBox(height: DimenSizes.dimen_40),
+                        Gap.h40,
+                        loginId,
+                        Gap.h20,
+                        password,
+                        Gap.h30,
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+      bottomSheet: Padding(
+        padding: AppDimen.commonAllSidePadding20,
+        child: ListenableBuilder(
+          listenable: Listenable.merge([loginIdTextController, passwordTextController]),
+          builder: (context, _) {
+            final bool isInputValid =
+                loginIdTextController.text.isNotEmpty &&
+                    passwordTextController.text.isNotEmpty;
+            final bool isLoading = ref.watch(loginControllerProvider).isLoading;
+            return CommonButtonWidget(
+              text: 'Submit',
+              onPressedFunction: (isInputValid && !isLoading) ? () {
+                AppUtils.hideKeyboard();
+                LoginRequest loginRequest = LoginRequest(
+                    loginId: loginIdTextController.text,
+                    password: passwordTextController.text);
+                ref.read(localPrefProvider).setString(PrefKeys.loginId, loginIdTextController.text);
+                ref.read(loginControllerProvider.notifier).login(loginRequest);
+              } : null,
+            );
+          },
         ),
       )
     );
   }
+
+  @override
+  void dispose() {
+    loginIdTextController.dispose();
+    passwordTextController.dispose();
+    super.dispose();
+  }
+
 }

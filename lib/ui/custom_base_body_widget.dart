@@ -12,7 +12,7 @@ class CustomBaseBodyWidget extends ConsumerStatefulWidget{
   const CustomBaseBodyWidget({
     super.key,
     required this.child,
-    this.padding = AppDimen.commonAllSidePadding10
+    this.padding = AppDimen.commonAllSidePadding15
   });
 
   @override

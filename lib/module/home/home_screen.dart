@@ -261,52 +261,49 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       );
     }
 
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-      ),
+      appBar: AppBar(title: const Text('Home')),
       body: CustomBaseBodyWidget(
         child: RefreshIndicator(
           onRefresh: _refreshData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics()
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  margin: const EdgeInsets.all(DimenSizes.dimen_8),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: suvaGreyColor,
-                      width: DimenSizes.dimen_1,
-                    ),
-                    borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                child: SizedBox(
+                  // Force the container to be EXACTLY the height of the screen
+                  height: constraints.maxHeight,
+                  width: constraints.maxWidth,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: primaryWhite,
+                          border: Border.all(
+                            color: suvaGreyColor,
+                            width: DimenSizes.dimen_1,
+                          ),
+                          borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
+                        ),
+                        child: accountInfoState.isLoading
+                            ? accountInfoShimmer()
+                            : accountInfoContent(accountInfoState),
+                      ),
+                      Gap.h15,
+                      phoneNumberState.isLoading
+                          ? phoneNumberShimmer()
+                          : phoneNumberCard(phoneNumberState),
+                      const Spacer(),
+                    ],
                   ),
-                  child: accountInfoState.isLoading
-                      ? accountInfoShimmer()
-                      : accountInfoState.hasError
-                      ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(
-                        child: Text("Error")
-                    ),
-                  ) : accountInfoContent(accountInfoState),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: phoneNumberState.isLoading
-                      ? phoneNumberShimmer()
-                      : phoneNumberState.hasError
-                      ? const SizedBox.shrink()
-                      : phoneNumberCard(phoneNumberState),
-                ),
-              ],
-            ),
-          )
+              );
+            },
+          ),
         ),
       ),
     );
