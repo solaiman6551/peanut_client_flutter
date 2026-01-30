@@ -1,8 +1,9 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
-import '../enum/network_status.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../common/toasts.dart';
+import '../../module/login/login_screen.dart';
+import '../context_holder.dart';
 import 'base_result.dart';
 
 
@@ -14,43 +15,46 @@ class BaseDataSource {
 
   BaseDataSource(this.dio);
 
-  Future<BaseResult<T>> getResult<T>(Future<Response<dynamic>> call, ResponseConverter<T> converter) async {
+  static bool _isLoggingOut = false;
+
+  Future<BaseResult<T>> getResult<T>(
+      Future<Response<dynamic>> call, ResponseConverter<T> converter) async {
     try {
-      var response = await call;
-      Map<String, dynamic> jsonResponse = json.decode(response.toString());
-      if (jsonResponse['responseCode'] == NetworkStatus.success.code) {
-        var transform = converter(jsonResponse);
-        return BaseResult.success(jsonResponse['responseCode'], transform);
-      } else {
+      final response = await call;
+      final statusCode = response.statusCode ?? 0;
+      if (statusCode == 200) {
+        final data = converter(response.data);
+        return BaseResult.success(statusCode, data);
+      }
+      else if (statusCode == 401) {
+        return BaseResult.error(statusCode, "${response.statusMessage}");
+      }
+      else if (statusCode == 500) {
+        if (!_isLoggingOut) {
+          _handleLogout();
+        }
+        return BaseResult.error(statusCode, "${response.statusMessage}");
+      }
+      else {
         return BaseResult.error(
-            jsonResponse['responseCode'] ?? 000,
-            jsonResponse['responseMessage'] ?? 'unknown_error'
-        );
+            statusCode, response.statusMessage ?? "Unknown error");
       }
     } on DioException catch (e) {
-      debugPrint(e.error.toString());
-      if(e.type == DioExceptionType.connectionError) {
-        EasyLoading.dismiss();
-        return BaseResult.error(NetworkStatus.error.code, 'network_error');
+      debugPrint('Dio Error: ${e.error}');
+      switch (e.type) {
+        case DioExceptionType.connectionError:
+          return BaseResult.error(0, 'Network error');
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return BaseResult.error(0, 'Connection timeout');
+        default:
+          return BaseResult.error(0, 'Unknown network error');
       }
-      else if(e.type == DioExceptionType.connectionTimeout) {
-        EasyLoading.dismiss();
-        return BaseResult.error(000, 'connection_timeout');
-      }
-      else if(e.type == DioExceptionType.receiveTimeout) {
-        EasyLoading.dismiss();
-        return BaseResult.error(000, 'connection_timeout');
-      }
-      else if(e.type == DioExceptionType.sendTimeout) {
-        EasyLoading.dismiss();
-        return BaseResult.error(000, 'connection_timeout');
-      }
-      return BaseResult.error(000, 'unknown_error');
     } catch (e, stackTrace) {
-      debugPrint('Error: ${e.toString()}');
+      debugPrint('Error: $e');
       debugPrint('StackTrace: $stackTrace');
-      EasyLoading.dismiss();
-      return BaseResult.error(000, 'unknown_error');
+      return BaseResult.error(0, 'Unknown error');
     }
   }
 
@@ -92,6 +96,19 @@ class BaseDataSource {
   Future<Response<dynamic>> update<T>(String url, Map<String, dynamic> body) async {
     final Response response = await dio.patch(url, data: body);
     return response;
+  }
+
+  Future<void> _handleLogout() async {
+    _isLoggingOut = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Toasts.showErrorToast("Access Denied");
+    ContextHolder.navKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
+    ).then((_) {
+      _isLoggingOut = false;
+    });
   }
 
 }

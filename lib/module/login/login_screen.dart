@@ -16,6 +16,7 @@ import '../../../utils/text_style.dart';
 import '../../ui/common_button_widget.dart';
 import '../../ui/common_text_field_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
+import '../dashboard/dashboard_screen.dart';
 import 'api/login_controller.dart';
 import 'api/model/login_request.dart';
 import 'api/model/login_response.dart';
@@ -51,7 +52,9 @@ class _LoginScreenState extends BaseConsumerState<LoginScreen> {
           if (response.result == true && response.token != "") {
             ref.read(localPrefProvider).setBool(PrefKeys.isLoggedInKey, true);
             ref.read(localPrefProvider).setString(PrefKeys.sessionTokenKey, response.token ?? '');
-
+            Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            );
           } else {
             Toasts.showErrorToast("Login failed");
           }
