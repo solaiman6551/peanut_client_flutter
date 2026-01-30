@@ -4,10 +4,15 @@ import 'package:peanut_client_app/utils/main_widget.dart';
 import 'core/bootstrap.dart';
 
 void main() async {
-  runApp(
-    UncontrolledProviderScope(
-        container: await bootstrap(),
-        child: const MainWidget()
-    ),
-  );
+  try {
+    final container = await bootstrap();
+    runApp(
+      UncontrolledProviderScope(
+          container: container,
+          child: const MainWidget()
+      ),
+    );
+  } catch (e) {
+    runApp(MaterialApp(home: Scaffold(body: Center(child: Text("Fatal Error: $e")))));
+  }
 }
