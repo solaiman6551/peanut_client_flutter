@@ -7,7 +7,11 @@ import 'package:overlay_support/overlay_support.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../ui/custom_base_body_widget.dart';
 import '../../utils/app_constants.dart';
+import '../core/context_holder.dart';
+import '../core/di/core_provider.dart';
 import '../utils/assets_provider.dart';
+import '../utils/pref_keys.dart';
+import 'login/login_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -61,7 +65,20 @@ class _SplashScreenState extends BaseConsumerState<SplashScreen> {
 
   void startNormalFlow() {
     _splashTimer = Timer(const Duration(seconds: 3), () async {
+      final isLoggedIn = ref.read(localPrefProvider).getBool(PrefKeys.isLoggedInKey) ?? false;
 
+      final navState = ContextHolder.navKey.currentState;
+
+      if (isLoggedIn) {
+
+        //Login route
+      } else {
+        await ref.read(localPrefProvider).clearSharedPref();
+        navState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+              (route) => false,
+        );
+      }
     });
   }
 
