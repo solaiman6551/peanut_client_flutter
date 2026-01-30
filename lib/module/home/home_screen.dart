@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
@@ -9,6 +10,7 @@ import '../../ui/custom_base_body_widget.dart';
 import '../../utils/assets_provider.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimension/dimen.dart';
+import '../../utils/no_scroll_glow_utils.dart';
 import '../../utils/pref_keys.dart';
 import '../../utils/text_style.dart';
 import 'api/get_account_info_controller.dart';
@@ -230,12 +232,12 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(5),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey,
+                padding: const EdgeInsets.all(DimenSizes.dimen_8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(DimenSizes.dimen_8),
                 ),
-                child: const Icon(Icons.phone, color: Colors.white),
+                child: Icon(Icons.phone, color: Colors.blue),
               ),
               Gap.w12,
               Column(
@@ -258,16 +260,16 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
 
     Widget buildError() {
       return Padding(
-        padding: EdgeInsets.all(DimenSizes.dimen_20),
+        padding: EdgeInsets.all(DimenSizes.dimen_30),
         child: Center(
           child: Column(
             children: [
               SvgPicture.asset(
-                height: DimenSizes.dimen_100,
-                width: DimenSizes.dimen_100,
+                height: MediaQuery.of(context).size.height * 0.25,
+                width: double.infinity,
                 AssetsProvider.svgPath("error"),
               ),
-              Gap.h10,
+              Gap.h20,
               CommonTextWidget(
                 text: "We're having trouble connecting to the server. Please try again later!",
                 style: regular14(color: lightGreyColor),
@@ -287,41 +289,52 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       ),
       backgroundColor: bgPrimaryColor,
       body: CustomBaseBodyWidget(
-        child: RefreshIndicator(
+        child: ScrollConfiguration(
+          behavior: NoGlowScrollBehavior(),
+          child: RefreshIndicator(
             onRefresh: _refreshData,
             child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics()
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: primaryWhite,
-                      border: Border.all(
-                        color: suvaGreyColor,
-                        width: DimenSizes.dimen_1,
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Lottie.asset(
+                        height: MediaQuery.of(context).size.height * 0.3,
+                        width: double.infinity,
+                        AssetsProvider.lottiePath('home_screen_lottie'),
                       ),
-                      borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
                     ),
-                    child: accountInfoState.isLoading
-                        ? accountInfoShimmer()
-                        : accountInfoState.hasError
-                        ? buildError() : accountInfoContent(accountInfoState),
-                  ),
-                  Gap.h10,
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: DimenSizes.dimen_0),
-                    child: phoneNumberState.isLoading
-                        ? phoneNumberShimmer()
-                        : phoneNumberState.hasError
-                        ? const SizedBox.shrink()
-                        : phoneNumberCard(phoneNumberState),
-                  ),
-                ],
+                    Container(
+                      decoration: BoxDecoration(
+                        color: primaryWhite,
+                        border: Border.all(
+                          color: suvaGreyColor,
+                          width: DimenSizes.dimen_1,
+                        ),
+                        borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
+                      ),
+                      child: accountInfoState.isLoading
+                          ? accountInfoShimmer()
+                          : accountInfoState.hasError
+                          ? buildError()
+                          : accountInfoContent(accountInfoState),
+                    ),
+                    Gap.h10,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: DimenSizes.dimen_0),
+                      child: phoneNumberState.isLoading
+                          ? phoneNumberShimmer()
+                          : phoneNumberState.hasError
+                          ? const SizedBox.shrink()
+                          : phoneNumberCard(phoneNumberState),
+                    ),
+                  ],
+                ),
               ),
-            )
+            ),
+          ),
         ),
       ),
     );
