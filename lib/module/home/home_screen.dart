@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
+import '../../ui/common_text_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimension/dimen.dart';
 import '../../utils/pref_keys.dart';
+import '../../utils/text_style.dart';
 import 'api/get_account_info_controller.dart';
 import 'api/get_phone_number_controller.dart';
 import 'api/model/get_account_info_request.dart';
@@ -26,9 +28,6 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends BaseConsumerState<HomeScreen> {
 
-  final TextStyle subtitle = const TextStyle(fontSize: 12.0, color: Colors.grey);
-  final TextStyle label = const TextStyle(fontSize: 14.0, color: Colors.grey);
-
   @override
   void initState() {
     super.initState();
@@ -39,13 +38,13 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
 
   Future<void> _refreshData() async {
     final loginId = ref.read(localPrefProvider).getString(PrefKeys.loginId) ?? '';
-    final jwt = ref.read(localPrefProvider).getString(PrefKeys.sessionTokenKey) ?? '';
+    final sessionToken = ref.read(localPrefProvider).getString(PrefKeys.sessionTokenKey) ?? '';
 
     ref.invalidate(getAccountInfoControllerProvider);
     ref.invalidate(getPhoneNumberControllerProvider);
 
-    final accountRequest = GetAccountInfoRequest(login: loginId, token: jwt);
-    final phoneRequest = GetPhoneNumberRequest(login: loginId, token: jwt);
+    final accountRequest = GetAccountInfoRequest(login: loginId, token: sessionToken);
+    final phoneRequest = GetPhoneNumberRequest(login: loginId, token: sessionToken);
 
     await Future.wait([
       ref.read(getAccountInfoControllerProvider.notifier).getAccountInfo(accountRequest),
@@ -86,7 +85,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
         baseColor: const Color(0xFFF0F0F0),
         highlightColor: lightGreyColor,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(DimenSizes.dimen_16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -95,15 +94,15 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
               shimmerLine(height: 14),
               const Divider(),
               shimmerRow(),
-              const SizedBox(height: 20),
+              Gap.h20,
               shimmerRow(),
-              const SizedBox(height: 20),
+              Gap.h20,
               shimmerRow(),
-              const SizedBox(height: 20),
+              Gap.h20,
               shimmerRow(),
-              const SizedBox(height: 20),
+              Gap.h20,
               shimmerRow(),
-              const SizedBox(height: 20),
+              Gap.h20,
               shimmerRow(),
             ],
           ),
@@ -116,7 +115,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
         baseColor: const Color(0xFFF0F0F0),
         highlightColor: lightGreyColor,
         child: Container(
-          height: 60,
+          height: DimenSizes.dimen_60,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(
@@ -133,8 +132,12 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(left, style: label),
-          Text(right, style: label),
+          CommonTextWidget(text: left,
+              style: regular12(color: lightGreyColor)
+          ),
+          CommonTextWidget(text: right,
+              style: regular12(color: lightGreyColor)
+          ),
         ],
       );
     }
@@ -143,59 +146,58 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(left),
-          Text(right),
+          CommonTextWidget(text: left,
+              style: semiBold14(color: primaryTextColor)
+          ),
+          CommonTextWidget(text: right,
+              style: semiBold14(color: primaryTextColor)
+          ),
         ],
       );
     }
-
 
     Widget accountInfoContent(AsyncValue<GetAccountInfoResponse> accountInfoState) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
-            Text(
-              accountInfoState.value?.name ?? "",
-              style: const TextStyle(color: Colors.green, fontSize: 20),
+            CommonTextWidget(text: accountInfoState.value?.name ?? "",
+                style: semiBold20(color: primaryTextColor)
             ),
-            Text(
-              accountInfoState.value?.address ?? "",
-              style: label,
+            CommonTextWidget(text: accountInfoState.value?.address ?? "",
+                style: semiBold12(color: lightGreyColor)
             ),
-            const Divider(),
+            const Divider(thickness: DimenSizes.dimen_1),
             buildRow("BALANCE", "Currency"),
             buildValueRow(
               "${accountInfoState.value?.balance}",
               "${accountInfoState.value?.currency}",
             ),
-            const SizedBox(height: 20),
+            Gap.h20,
             buildRow("CITY", "COUNTRY"),
             buildValueRow(
               accountInfoState.value?.city ?? "",
               accountInfoState.value?.country ?? "",
             ),
-            const SizedBox(height: 20),
-            buildRow("ZIP CODE", "PHONE"),
+            Gap.h20,
+            buildRow("ZIP CODE", "LEVERAGE"),
             buildValueRow(
-              accountInfoState.value?.zipCode ?? "",
-              accountInfoState.value?.phone ?? "",
+              "${accountInfoState.value?.zipCode }",
+              "${accountInfoState.value?.leverage}",
             ),
-            const SizedBox(height: 20),
+            Gap.h20,
             buildRow("CURRENT TRADES COUNT", "CURRENT TRADES VOLUME"),
             buildValueRow(
               "${accountInfoState.value?.currentTradesCount}",
               "${accountInfoState.value?.currentTradesVolume}",
             ),
-
-            const SizedBox(height: 20),
-
+            Gap.h20,
             buildRow("EQUITY", "FREE MARGIN"),
             buildValueRow(
               "${accountInfoState.value?.equity}",
               "${accountInfoState.value?.freeMargin}",
             ),
-            const SizedBox(height: 20),
+            Gap.h20,
             buildRow("TOTAL TRADES COUNT", "TOTAL TRADES VOLUME"),
             buildValueRow(
               "${accountInfoState.value?.totalTradesCount}",
@@ -206,13 +208,11 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       );
     }
 
-
-
     Widget phoneNumberCard(AsyncValue<GetPhoneNumberResponse> phoneNumberState) {
       return Container(
-        height: 60,
+        height: DimenSizes.dimen_60,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: primaryWhite,
           border: Border.all(
             color: suvaGreyColor,
             width: DimenSizes.dimen_1,
@@ -220,7 +220,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
           borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.symmetric(horizontal: DimenSizes.dimen_10),
           child: Row(
             children: [
               Container(
@@ -231,25 +231,16 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
                 ),
                 child: const Icon(Icons.phone, color: Colors.white),
               ),
-              const SizedBox(width: 15),
+              Gap.w12,
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    phoneNumberState.value?.phoneNumber ?? "",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  CommonTextWidget(text: phoneNumberState.value?.phoneNumber ?? "",
+                      style: bold18(color: primaryTextColor)
                   ),
-                  const Text(
-                    "Phone Number",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.amber,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  CommonTextWidget(text: "Phone Number",
+                      style: regular12(color: lightGreyColor)
                   ),
                 ],
               ),
@@ -259,49 +250,56 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       );
     }
 
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(
+          title: CommonTextWidget(text: "Home",
+              style: regular22(color: primaryWhite)
+          )
+      ),
       body: CustomBaseBodyWidget(
         child: RefreshIndicator(
-          onRefresh: _refreshData,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                child: SizedBox(
-                  // Force the container to be EXACTLY the height of the screen
-                  height: constraints.maxHeight,
-                  width: constraints.maxWidth,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: primaryWhite,
-                          border: Border.all(
-                            color: suvaGreyColor,
-                            width: DimenSizes.dimen_1,
-                          ),
-                          borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
-                        ),
-                        child: accountInfoState.isLoading
-                            ? accountInfoShimmer()
-                            : accountInfoContent(accountInfoState),
+            onRefresh: _refreshData,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics()
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: suvaGreyColor,
+                        width: DimenSizes.dimen_1,
                       ),
-                      Gap.h15,
-                      phoneNumberState.isLoading
-                          ? phoneNumberShimmer()
-                          : phoneNumberCard(phoneNumberState),
-                      const Spacer(),
-                    ],
+                      borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
+                    ),
+                    child: accountInfoState.isLoading
+                        ? accountInfoShimmer()
+                        : accountInfoState.hasError
+                        ? Padding(
+                      padding: EdgeInsets.all(DimenSizes.dimen_14),
+                      child: Center(
+                          child: CommonTextWidget(text: "Error from server. Try again later!",
+                              style: regular22(color: primaryWhite)
+                          )
+                      ),
+                    ) : accountInfoContent(accountInfoState),
                   ),
-                ),
-              );
-            },
-          ),
+                  Gap.h10,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: DimenSizes.dimen_0),
+                    child: phoneNumberState.isLoading
+                        ? phoneNumberShimmer()
+                        : phoneNumberState.hasError
+                        ? const SizedBox.shrink()
+                        : phoneNumberCard(phoneNumberState),
+                  ),
+                ],
+              ),
+            )
         ),
       ),
     );

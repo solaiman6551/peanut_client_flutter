@@ -48,7 +48,11 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
   Widget build(BuildContext context) {
     final getOpenTradesListState = ref.watch(getOpenTradesControllerProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Open Traders List')),
+      appBar: AppBar(
+          title: CommonTextWidget(text: "Traders List",
+              style: regular22(color: primaryWhite)
+          )
+      ),
       body: CustomBaseBodyWidget(
         child: RefreshIndicator(
           onRefresh: _fetchTrades,
@@ -69,7 +73,7 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
                       child: Text(
                         "Error from server. Please try again later!",
                         textAlign: TextAlign.center,
-                        style: regular16(color: Colors.red), // Use your style helper
+                        style: regular16(color: Colors.red),
                       ),
                     ),
                   ),

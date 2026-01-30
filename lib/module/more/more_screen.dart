@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peanut_client_app/utils/dimension/dimen.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
 import '../../ui/common_text_widget.dart';
@@ -33,45 +34,55 @@ class _MoreScreenState extends BaseConsumerState<MoreScreen> {
     Icons.logout
   ];
 
-  Widget container({
+  Widget moreItem({
     required String title,
     required IconData icon,
     required VoidCallback onTap
   }) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Container(
-            padding: const EdgeInsets.all(8),
-            child: Icon(icon, color: Colors.blue),
-          ),
-          title: CommonTextWidget(
-            text: title,
-            style: regular14(),
-          ),
-          trailing: const Icon(Icons.keyboard_arrow_right),
-          onTap: onTap,
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.only(bottom: DimenSizes.dimen_15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(DimenSizes.dimen_5),
+      ),
+      color: primaryWhite,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: DimenSizes.dimen_14,
+            vertical: DimenSizes.dimen_4
         ),
-        const Divider(
-          color: Colors.grey,
-        )
-      ],
+        leading: Container(
+          padding: const EdgeInsets.all(DimenSizes.dimen_8),
+          decoration: BoxDecoration(
+            color: Colors.blue.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(DimenSizes.dimen_8),
+          ),
+          child: Icon(icon, color: Colors.blue),
+        ),
+        title: CommonTextWidget(
+          text: title,
+          style: semiBold14(color: primaryTextColor), // Switched to medium for better readability
+        ),
+        trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+        onTap: onTap,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: primaryWhite,
       appBar: AppBar(
-        title: const Text('More'),
+          title: CommonTextWidget(text: "More",
+              style: regular22(color: primaryWhite)
+          )
       ),
       body: CustomBaseBodyWidget(
         child: ListView.builder(
           itemCount: optionTitle.length,
           physics: const BouncingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
-            return container(
+            return moreItem(
               title: optionTitle[index],
               icon: iconList[index],
               onTap: () {
