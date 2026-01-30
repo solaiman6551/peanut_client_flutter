@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:peanut_client_app/module/splash_screen.dart';
+import 'package:peanut_client_app/module/home/home_screen.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../utils/assets_provider.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimension/dimen.dart';
+import '../more/more_screen.dart';
+import '../open_trades/open_trades_screen.dart';
 
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -25,9 +27,9 @@ final dashboardIndexProvider = StateProvider.autoDispose<int>((ref) {
 class _DashboardScreenState extends BaseConsumerState<DashboardScreen> {
 
   final _screens = [
-    const SplashScreen(),
-    // const OpenTradesScreen(),
-    // const MoreScreen(),
+    const HomeScreen(),
+    const OpenTradesScreen(),
+    const MoreScreen(),
   ];
 
   @override
@@ -63,7 +65,7 @@ class _DashboardScreenState extends BaseConsumerState<DashboardScreen> {
                 },
                 items: [
                   _buildNavItem('ic_dash_home', 'Home', 0, currentIndex),
-                  _buildNavItem('ic_dash_order', 'List', 1, currentIndex),
+                  _buildNavItem('ic_dash_traders', 'Traders', 1, currentIndex),
                   _buildNavItem('ic_dash_more', 'More', 2, currentIndex),
                 ],
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
