@@ -11,9 +11,11 @@ import '../core/context_holder.dart';
 import '../core/di/core_provider.dart';
 import '../utils/assets_provider.dart';
 import '../utils/pref_keys.dart';
+import 'dashboard/dashboard_screen.dart';
 import 'login/login_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
+
   const SplashScreen({super.key});
 
   @override
@@ -71,7 +73,12 @@ class _SplashScreenState extends BaseConsumerState<SplashScreen> {
 
       if (isLoggedIn) {
 
-        //Login route
+        ref.invalidate(dashboardIndexProvider);
+
+        navState?.pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+              (route) => false,
+        );
       } else {
         await ref.read(localPrefProvider).clearSharedPref();
         navState?.pushAndRemoveUntil(
