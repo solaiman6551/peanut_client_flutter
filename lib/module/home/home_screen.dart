@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
 import '../../ui/common_text_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
+import '../../utils/assets_provider.dart';
 import '../../utils/colors.dart';
 import '../../utils/dimension/dimen.dart';
 import '../../utils/pref_keys.dart';
@@ -59,39 +61,43 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
     final accountInfoState = ref.watch(getAccountInfoControllerProvider);
     final phoneNumberState = ref.watch(getPhoneNumberControllerProvider);
 
-    Widget shimmerLine({double height = 14, double width = double.infinity}) {
+    Widget shimmerLine({double height = DimenSizes.dimen_20, double width = double.infinity}) {
       return Container(
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(6),
+          color: primaryWhite,
+          borderRadius: BorderRadius.circular(DimenSizes.dimen_4),
         ),
       );
     }
 
     Widget shimmerRow() {
       return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          shimmerLine(width: 100),
-          shimmerLine(width: 100),
+          Expanded(
+            child: shimmerLine(height: DimenSizes.dimen_30),
+          ),
+          Gap.w64,
+          Expanded(
+            child: shimmerLine(height: DimenSizes.dimen_30),
+          ),
         ],
       );
     }
 
     Widget accountInfoShimmer() {
       return Shimmer.fromColors(
-        baseColor: const Color(0xFFF0F0F0),
-        highlightColor: lightGreyColor,
+        baseColor: shimmerBaseColor,
+        highlightColor: shimmerBaseHighlightColor,
         child: Padding(
           padding: const EdgeInsets.all(DimenSizes.dimen_16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              shimmerLine(height: 20, width: 180),
-              const SizedBox(height: 8),
-              shimmerLine(height: 14),
+              shimmerLine(height: DimenSizes.dimen_30, width: DimenSizes.dimen_150),
+              Gap.h8,
+              shimmerLine(height: DimenSizes.dimen_20),
               const Divider(),
               shimmerRow(),
               Gap.h20,
@@ -112,12 +118,12 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
 
     Widget phoneNumberShimmer() {
       return Shimmer.fromColors(
-        baseColor: const Color(0xFFF0F0F0),
-        highlightColor: lightGreyColor,
+        baseColor: shimmerBaseColor,
+        highlightColor: shimmerBaseHighlightColor,
         child: Container(
           height: DimenSizes.dimen_60,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: primaryWhite,
             border: Border.all(
               color: suvaGreyColor,
               width: DimenSizes.dimen_1,
@@ -158,7 +164,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
 
     Widget accountInfoContent(AsyncValue<GetAccountInfoResponse> accountInfoState) {
       return Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(DimenSizes.dimen_15),
         child: Column(
           children: <Widget>[
             CommonTextWidget(text: accountInfoState.value?.name ?? "",
@@ -250,6 +256,28 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
       );
     }
 
+    Widget buildError() {
+      return Padding(
+        padding: EdgeInsets.all(DimenSizes.dimen_20),
+        child: Center(
+          child: Column(
+            children: [
+              SvgPicture.asset(
+                height: DimenSizes.dimen_100,
+                width: DimenSizes.dimen_100,
+                AssetsProvider.svgPath("error"),
+              ),
+              Gap.h10,
+              CommonTextWidget(
+                text: "We're having trouble connecting to the server. Please try again later!",
+                style: regular14(color: lightGreyColor),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -270,7 +298,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: primaryWhite,
                       border: Border.all(
                         color: suvaGreyColor,
                         width: DimenSizes.dimen_1,
@@ -280,14 +308,7 @@ class _HomeScreenState extends BaseConsumerState<HomeScreen> {
                     child: accountInfoState.isLoading
                         ? accountInfoShimmer()
                         : accountInfoState.hasError
-                        ? Padding(
-                      padding: EdgeInsets.all(DimenSizes.dimen_14),
-                      child: Center(
-                          child: CommonTextWidget(text: "Error from server. Try again later!",
-                              style: regular22(color: primaryWhite)
-                          )
-                      ),
-                    ) : accountInfoContent(accountInfoState),
+                        ? buildError() : accountInfoContent(accountInfoState),
                   ),
                   Gap.h10,
                   Padding(

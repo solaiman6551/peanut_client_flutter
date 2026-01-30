@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:peanut_client_app/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
 import '../../ui/common_text_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
-import '../../utils/Colors.dart';
 import '../../utils/date_time_formatter.dart';
-import '../../utils/dimension/app_dimen.dart';
 import '../../utils/dimension/dimen.dart';
+import '../../utils/no_scroll_glow_utils.dart';
 import '../../utils/pref_keys.dart';
 import '../../utils/text_style.dart';
 import 'api/get_open_trades_controller.dart';
@@ -53,76 +53,80 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
               style: regular22(color: primaryWhite)
           )
       ),
+      backgroundColor: bgPrimaryColor,
       body: CustomBaseBodyWidget(
-        child: RefreshIndicator(
-          onRefresh: _fetchTrades,
-          color: primaryColor,
-          child: getOpenTradesListState.when(
-            skipLoadingOnRefresh: true,
-            loading: () => _buildShimmerLoading(),
-            error: (err, stack) => CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              slivers: [
-                SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: Text(
-                        "Error from server. Please try again later!",
-                        textAlign: TextAlign.center,
-                        style: regular16(color: Colors.red),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            data: (data) {
-              final openTradesList = data.openTradesItem ?? [];
-              final double totalProfit = openTradesList.fold(0.0,
-                      (previousValue, element)
-                  => previousValue + (element.profit ?? 0.0)
-              );
-              if (openTradesList.isEmpty) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(
+        child: ScrollConfiguration(
+            behavior: NoGlowScrollBehavior(),
+            child: RefreshIndicator(
+              onRefresh: _fetchTrades,
+              color: primaryColor,
+              child: getOpenTradesListState.when(
+                skipLoadingOnRefresh: true,
+                loading: () => _buildShimmerLoading(),
+                error: (err, stack) => CustomScrollView(
+                  physics: const ClampingScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),
-                  children: [
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Container(
-                          height: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top,
-                          alignment: Alignment.center,
-                          child: const Text("You don't have any data right now!"),
-                        );
-                      },
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Text(
+                            "Error from server. Please try again later!",
+                            textAlign: TextAlign.center,
+                            style: regular16(color: Colors.red),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                );
-              }
-              return Column(
-                children: [
-                  _buildProfitHeader(totalProfit),
-                  Gap.h20,
-                  Expanded(
-                    child: ListView.builder(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      itemCount: openTradesList.length,
-                      itemBuilder: (context, index) {
-                        final tradesList = openTradesList[index];
-                        return _buildTradeCard(tradesList);
-                      },
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ),
+                ),
+                data: (data) {
+                  final openTradesList = data.openTradesItem ?? [];
+                  final double totalProfit = openTradesList.fold(0.0,
+                          (previousValue, element)
+                      => previousValue + (element.profit ?? 0.0)
+                  );
+                  if (openTradesList.isEmpty) {
+                    return ListView(
+                      physics: const ClampingScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      children: [
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Container(
+                              height: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).padding.top,
+                              alignment: Alignment.center,
+                              child: const Text("You don't have any data right now!"),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children: [
+                      _buildProfitHeader(totalProfit),
+                      Gap.h20,
+                      Expanded(
+                        child: ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: openTradesList.length,
+                          itemBuilder: (context, index) {
+                            final tradesList = openTradesList[index];
+                            return _buildTradeCard(tradesList);
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+        )
       ),
     );
   }
@@ -134,20 +138,27 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
       padding: const EdgeInsets.all(DimenSizes.dimen_16),
       decoration: BoxDecoration(
         color: isPositive ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(DimenSizes.dimen_5),
-        border: Border.all(color: isPositive ? Colors.green : Colors.red, width: 1),
+        borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
+        border: Border.all(
+          color: isPositive
+              ? Colors.green.withValues(alpha: 0.2)
+              : Colors.red.withValues(alpha: 0.2),
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          const Text("TOTAL PROFIT", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          CommonTextWidget(
+              text: "TOTAL PROFIT",
+              style: regular12(
+                  color: primaryTextLightColor
+              )
+          ),
           Gap.h5,
-          Text(
-            "${total.toStringAsFixed(2)} USD",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: isPositive ? Colors.green : Colors.red,
-            ),
+          CommonTextWidget(
+              text: total.toStringAsFixed(2),
+              style: bold24(
+                color: isPositive ? Colors.green : Colors.red)
           ),
         ],
       ),
@@ -156,11 +167,15 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
 
   Widget _buildTradeCard(OpenTradesItem tradesList) {
     return Container(
-      margin: const EdgeInsets.only(bottom: DimenSizes.dimen_20),
-      padding: const EdgeInsets.all(DimenSizes.dimen_12),
+      margin: const EdgeInsets.only(bottom: DimenSizes.dimen_10),
+      padding: const EdgeInsets.all(DimenSizes.dimen_10),
       decoration: BoxDecoration(
-        border: Border.all(color: primaryColor, width: DimenSizes.dimen_1),
-        borderRadius: const BorderRadius.all(Radius.circular(DimenSizes.dimen_5)),
+        color: Colors.white,
+        border: Border.all(
+          color: suvaGreyColor,
+          width: DimenSizes.dimen_1,
+        ),
+        borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -199,16 +214,16 @@ class _OpenTradesScreenState extends BaseConsumerState<OpenTradesScreen> {
 
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
-      baseColor: const Color(0xFFF5F5F5),
-      highlightColor: lightGreyColor,
+      baseColor: shimmerBaseColor,
+      highlightColor: shimmerBaseHighlightColor,
       child: ListView.builder(
         itemCount: 10,
         itemBuilder: (_, _) => Container(
           height: DimenSizes.dimen_100,
           margin: const EdgeInsets.only(bottom: DimenSizes.dimen_20),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: AppDimen.commonCircularBorderRadius,
+          decoration: BoxDecoration(
+              color: primaryWhite,
+              borderRadius: BorderRadius.circular(DimenSizes.dimen_10),
           ),
         ),
       ),
