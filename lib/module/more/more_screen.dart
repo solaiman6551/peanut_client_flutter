@@ -10,6 +10,7 @@ import '../../utils/dialog_utils.dart';
 import '../../utils/pref_keys.dart';
 import '../../utils/text_style.dart';
 import '../login/login_screen.dart';
+import '../promo/promo_campaign_screen.dart';
 
 
 class MoreScreen extends ConsumerStatefulWidget {
@@ -25,13 +26,13 @@ class _MoreScreenState extends BaseConsumerState<MoreScreen> {
 
   List<String> optionTitle = [
     'Profile',
-    'Support',
+    'Promotion',
     'Logout'
   ];
 
   List<IconData> iconList = [
     Icons.person,
-    Icons.help_outline,
+    Icons.local_offer,
     Icons.logout
   ];
 
@@ -88,6 +89,11 @@ class _MoreScreenState extends BaseConsumerState<MoreScreen> {
               title: optionTitle[index],
               icon: iconList[index],
               onTap: () {
+                if(index == 1) {
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const PromoScreen()),
+                  );
+                }
                if(index == 2) {
                  DialogUtils.showCustomDialog(context,
                      isDismissible: true,

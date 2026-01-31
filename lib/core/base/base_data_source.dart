@@ -98,6 +98,43 @@ class BaseDataSource {
     return response;
   }
 
+  Future<BaseResult<T>> getSoapResult<T>(
+      Future<Response<String>> call,
+      T Function(String xmlResponse) converter
+      ) async {
+    try {
+      final response = await call;
+      final statusCode = response.statusCode ?? 0;
+
+      if (statusCode == 200 && response.data != null) {
+        final data = converter(response.data!);
+        return BaseResult.success(statusCode, data);
+      }
+      else if (statusCode == 500) {
+        if (!_isLoggingOut) _handleLogout();
+        return BaseResult.error(statusCode, "Internal Server Error");
+      }
+      return BaseResult.error(statusCode, "SOAP Error");
+    } on DioException catch (e) {
+      return BaseResult.error(0, 'Network error');
+    }
+  }
+
+  Future<Response<String>> postSoap(String url, String soapEnvelope, String soapAction) async {
+    return await dio.post<String>(
+      url,
+      data: soapEnvelope,
+      options: Options(
+        headers: {
+          "Content-Type": "text/xml; charset=utf-8",
+          "SOAPAction": soapAction,
+          "Accept": "*/*"
+        },
+        responseType: ResponseType.plain,
+      ),
+    );
+  }
+
   Future<void> _handleLogout() async {
     _isLoggingOut = true;
     final prefs = await SharedPreferences.getInstance();
