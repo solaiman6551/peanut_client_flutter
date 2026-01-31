@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppUtils {
 
-  static hideKeyboard() {
+  static void hideKeyboard() {
     FocusManager.instance.primaryFocus?.unfocus();
   }
 

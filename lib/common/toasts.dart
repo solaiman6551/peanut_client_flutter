@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:overlay_support/overlay_support.dart';
 import '../ui/common_text_widget.dart';
 import '../utils/colors.dart';
-import '../utils/dimension/app_dimen.dart';
-import '../utils/dimension/dimen.dart';
+import '../utils/dimen.dart';
 import '../utils/text_style.dart';
 
 
 class Toasts {
-  static void showSuccessToast(message) async {
+  static void showSuccessToast(String message) async {
     showOverlayNotification((context) {
         return SafeArea(
           child: Padding(
@@ -35,7 +34,7 @@ class Toasts {
     );
   }
 
-  static void showErrorToast(message) async {
+  static void showErrorToast(String message) async {
     showOverlayNotification((context) {
         return SafeArea(
           child: Padding(
@@ -62,7 +61,7 @@ class Toasts {
     );
   }
 
-  static void showInformationToast(message) async {
+  static void showInformationToast(String message) async {
     showOverlayNotification((context) {
         return SafeArea(
           child: Padding(

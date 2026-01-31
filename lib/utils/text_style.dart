@@ -6,8 +6,6 @@ class TextStyleDefaults {
   static const double height = 1.2;
 }
 
-//regular 10 to 30 & 48
-
 TextStyle regular10({Color color = TextStyleDefaults.color, double letterSpacing = TextStyleDefaults.letterSpacing, double height = TextStyleDefaults.height}) {
   return TextStyle(
     fontWeight: FontWeight.w400,

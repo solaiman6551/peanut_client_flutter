@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:peanut_client_app/utils/dimension/dimen.dart';
+import 'package:peanut_client_app/utils/dimen.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../core/di/core_provider.dart';
 import '../../ui/common_text_widget.dart';

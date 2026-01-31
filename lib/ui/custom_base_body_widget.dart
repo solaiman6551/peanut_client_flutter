@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/base/base_consumer_state.dart';
-import '../utils/dimension/app_dimen.dart';
+import '../utils/dimen.dart';
 
 
 class CustomBaseBodyWidget extends ConsumerStatefulWidget{

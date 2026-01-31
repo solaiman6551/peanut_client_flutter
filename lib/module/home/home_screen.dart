@@ -9,7 +9,7 @@ import '../../ui/common_text_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
 import '../../utils/assets_provider.dart';
 import '../../utils/colors.dart';
-import '../../utils/dimension/dimen.dart';
+import '../../utils/dimen.dart';
 import '../../utils/no_scroll_glow_utils.dart';
 import '../../utils/pref_keys.dart';
 import '../../utils/text_style.dart';

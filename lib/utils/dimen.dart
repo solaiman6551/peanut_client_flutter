@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import 'app_dimen.dart';
-
 class DimenSizes {
 
   DimenSizes._();
@@ -194,7 +192,25 @@ class Gap {
   static const h72 = SizedBox(height: DimenSizes.dimen_72);
   static const h80 = SizedBox(height: DimenSizes.dimen_80);
   static const h100 = SizedBox(height: DimenSizes.dimen_100);
-  static const toolBarBottomVerticalGap = SizedBox(height: AppDimen.toolbarBottomGap);
+
+}
+
+class AppDimen {
+  static const EdgeInsetsGeometry commonAllSidePadding0 = EdgeInsets.zero;
+  static const EdgeInsetsGeometry commonAllSidePadding5 = EdgeInsets.all(DimenSizes.dimen_5);
+  static const EdgeInsetsGeometry commonAllSidePadding10 = EdgeInsets.all(DimenSizes.dimen_10);
+  static const EdgeInsetsGeometry commonAllSidePadding15 = EdgeInsets.all(DimenSizes.dimen_15);
+  static const EdgeInsetsGeometry commonAllSidePadding20 = EdgeInsets.all(DimenSizes.dimen_20);
+  static const EdgeInsetsGeometry commonAllSidePadding30 = EdgeInsets.all(DimenSizes.dimen_30);
+
+  static const BorderRadius commonCircularBorderRadius = BorderRadius.only(
+      topLeft: Radius.circular(DimenSizes.dimen_5),
+      bottomLeft: Radius.circular(DimenSizes.dimen_5),
+      bottomRight: Radius.circular(DimenSizes.dimen_5),
+      topRight: Radius.circular(DimenSizes.dimen_5)
+  );
+
+  static const toastVerticalHorizontalPadding = EdgeInsets.symmetric(vertical: DimenSizes.dimen_8, horizontal: DimenSizes.dimen_16);
 
 }
 

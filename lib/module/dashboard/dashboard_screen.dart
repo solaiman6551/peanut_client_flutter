@@ -5,7 +5,7 @@ import 'package:peanut_client_app/module/home/home_screen.dart';
 import '../../core/base/base_consumer_state.dart';
 import '../../utils/assets_provider.dart';
 import '../../utils/colors.dart';
-import '../../utils/dimension/dimen.dart';
+import '../../utils/dimen.dart';
 import '../more/more_screen.dart';
 import '../open_trades/open_trades_screen.dart';
 
