@@ -6,6 +6,7 @@ import '../../core/di/core_provider.dart';
 import '../../ui/common_text_widget.dart';
 import '../../ui/custom_base_body_widget.dart';
 import '../../utils/colors.dart';
+import '../../utils/dialog_utils.dart';
 import '../../utils/pref_keys.dart';
 import '../../utils/text_style.dart';
 import '../login/login_screen.dart';
@@ -77,6 +78,7 @@ class _MoreScreenState extends BaseConsumerState<MoreScreen> {
               style: regular22(color: primaryWhite)
           )
       ),
+      backgroundColor: bgPrimaryColor,
       body: CustomBaseBodyWidget(
         child: ListView.builder(
           itemCount: optionTitle.length,
@@ -87,11 +89,23 @@ class _MoreScreenState extends BaseConsumerState<MoreScreen> {
               icon: iconList[index],
               onTap: () {
                if(index == 2) {
-                  ref.read(localPrefProvider).setBool(PrefKeys.isLoggedInKey, false);
-                  ref.read(localPrefProvider).setString(PrefKeys.sessionTokenKey, "");
-                  Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  );
+                 DialogUtils.showCustomDialog(context,
+                     isDismissible: true,
+                     showCancelButton: true,
+                     title: "Log Out",
+                     content: "Are you sure you want to log out from your account?",
+                     okBtnText: "YES",
+                     cancelBtnText: "NO",
+                     okBtnFunction: () {
+                       ref.read(localPrefProvider).setBool(PrefKeys.isLoggedInKey, false);
+                       ref.read(localPrefProvider).setString(PrefKeys.sessionTokenKey, "");
+                       Navigator.pop(context);
+                       Navigator.pushAndRemoveUntil(context,
+                         MaterialPageRoute(builder: (context) => const LoginScreen()),
+                             (route) => false,
+                       );
+                     }
+                 );
                 }
               },
             );
